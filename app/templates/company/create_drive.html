@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Placement Drive - Placement Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="form-section">
+            <h2 class="section-title text-center">Create Placement Drive</h2>
+            
+            <form method="POST" action="/company/create-drive">
+                <div class="mb-3">
+                    <label for="job_title" class="form-label">Job Title:</label>
+                    <input type="text" class="form-control" name="job_title" id="job_title" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="job_description" class="form-label">Job Description:</label>
+                    <textarea class="form-control" name="job_description" id="job_description" rows="5" required></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="eligibility_criteria" class="form-label">Eligibility Criteria:</label>
+                    <textarea class="form-control" name="eligibility_criteria" id="eligibility_criteria" rows="4"></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="ctc" class="form-label">CTC (in LPA):</label>
+                        <input type="number" class="form-control" name="ctc" id="ctc" step="0.1" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="positions" class="form-label">Number of Positions:</label>
+                        <input type="number" class="form-control" name="positions" id="positions" value="1" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="application_deadline" class="form-label">Application Deadline:</label>
+                    <input type="datetime-local" class="form-control" name="application_deadline" id="application_deadline" required>
+                </div>
+                
+                <div class="alert alert-info">
+                    <strong>Note:</strong> This placement drive will require admin approval before becoming visible to students.
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold">Create Drive</button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="/company/dashboard" class="btn btn-outline-secondary w-100">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

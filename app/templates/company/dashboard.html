@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Company Dashboard - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Company Dashboard</h1>
+
+{% if company.approval_status != 'Approved' %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>⚠️ Note:</strong> Your company account is awaiting admin approval. You can create placement drives once
+    approved.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5>Approval Status</h5>
+            <div style="font-size: 1.5rem; margin-top: 10px;">{{ company.approval_status }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h5>Active Drives</h5>
+            <div class="display-4">{{ total_drives }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h5>Total Applications</h5>
+            <div class="display-4">{{ total_applications }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <h5>HR Contact</h5>
+            <div style="font-size: 1.1rem; margin-top: 10px;">{{ company.hr_contact }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Company Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Company Name:</strong> {{ company.company_name }}</li>
+                    <li><strong>Email:</strong> {{ company.email }}</li>
+                    <li><strong>HR Contact:</strong> {{ company.hr_name }}</li>
+                    <li><strong>Phone:</strong> {{ company.hr_contact }}</li>
+                    <li><strong>Website:</strong>
+                        {% if company.website %}
+                        <a href="{{ company.website }}" target="_blank">{{ company.website }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if company.approval_status == 'Approved' %}
+                <a href="/company/create-drive" class="btn btn-primary w-100 mb-2">
+                    ➕ Create New Placement Drive
+                </a>
+                {% else %}
+                <button class="btn btn-primary w-100 mb-2" disabled>
+                    ➕ Create New Placement Drive (Awaiting Approval)
+                </button>
+                {% endif %}
+                <a href="/company/drives" class="btn btn-outline-primary w-100">
+                    📋 View All Drives
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">Applications per Drive</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="companyDrivesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">Overall Application Status</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="companyStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if drives %}
+<h4 class="mt-4 mb-3" style="color: var(--primary-color); font-weight: 600;">Recent Placement Drives</h4>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Positions</th>
+                <th>Applications</th>
+                <th>Status</th>
+                <th>Approval</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drive in drives|list|reverse %}
+            {% if loop.index <= 5 %} <tr>
+                <td><strong>{{ drive.job_title }}</strong></td>
+                <td>{{ drive.positions }}</td>
+                <td>{{ drive.applications|length }}</td>
+                <td>
+                    {% if drive.status == 'Open' %}
+                    <span class="badge bg-success">Open</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ drive.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if drive.approval_status == 'Pending' %}
+                    <span class="badge badge-pending">Pending</span>
+                    {% elif drive.approval_status == 'Approved' %}
+                    <span class="badge badge-approved">Approved</span>
+                    {% else %}
+                    <span class="badge badge-rejected">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/company/applications/{{ drive.id }}" class="btn btn-sm btn-info">
+                        View Applications
+                    </a>
+                </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Applications per Drive Chart
+        const drivesCtx = document.getElementById('companyDrivesChart').getContext('2d');
+        new Chart(drivesCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ drive_labels | tojson }},
+        datasets: [{
+            label: 'Applications',
+            data: {{ drive_data | tojson }},
+        backgroundColor: 'rgba(76, 175, 80, 0.7)',
+        borderColor: 'rgba(76, 175, 80, 1)',
+        borderWidth: 1
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        }
+    }
+        });
+
+    // Application Status Chart
+    const statusCtx = document.getElementById('companyStatusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ company_app_status_labels | tojson }},
+        datasets: [{
+            data: {{ company_app_status_data | tojson }},
+        backgroundColor: [
+            '#6c757d', // Applied
+            '#0d6efd', // Shortlisted
+            '#198754', // Selected
+            '#dc3545'  // Rejected
+        ]
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+        });
+    });
+</script>
+{% endblock %}

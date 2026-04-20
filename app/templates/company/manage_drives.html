@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Placement Drives - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">My Placement Drives</h1>
+
+<div class="mb-4">
+    <a href="/company/create-drive" class="btn btn-primary">
+        ➕ Create New Drive
+    </a>
+</div>
+
+{% if drives %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Positions</th>
+                <th>CTC (LPA)</th>
+                <th>Applications</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Approval</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drive in drives %}
+            <tr>
+                <td><strong>{{ drive.job_title }}</strong></td>
+                <td>{{ drive.positions }}</td>
+                <td>{{ drive.ctc if drive.ctc else '-' }}</td>
+                <td>{{ drive.applications|length }}</td>
+                <td>{{ drive.application_deadline.strftime('%d-%m-%Y %H:%M') if drive.application_deadline else '-' }}</td>
+                <td>
+                    {% if drive.status == 'Open' %}
+                        <span class="badge bg-success">Open</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ drive.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if drive.approval_status == 'Pending' %}
+                        <span class="badge badge-pending">Pending</span>
+                    {% elif drive.approval_status == 'Approved' %}
+                        <span class="badge badge-approved">Approved</span>
+                    {% else %}
+                        <span class="badge badge-rejected">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="/company/applications/{{ drive.id }}" class="btn btn-info" title="View Applications">👥</a>
+                        <a href="/company/edit-drive/{{ drive.id }}" class="btn btn-warning" title="Edit">✏️</a>
+                        
+                        {% if drive.status == 'Open' %}
+                            <form method="POST" action="/company/close-drive/{{ drive.id }}" style="display:inline;">
+                                <button type="submit" class="btn btn-outline-secondary" title="Close Drive">🔒</button>
+                            </form>
+                        {% endif %}
+                        
+                        <form method="POST" action="/company/delete-drive/{{ drive.id }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn btn-outline-danger" title="Delete">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No placement drives created yet. <a href="/company/create-drive">Create one now</a>
+</div>
+{% endif %}
+{% endblock %}

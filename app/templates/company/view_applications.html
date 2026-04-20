@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}View Applications - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Applications for {{ drive.job_title }}</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Job Title:</strong> {{ drive.job_title }}
+            </div>
+            <div class="col-md-3">
+                <strong>Total Applications:</strong> {{ applications|length }}
+            </div>
+            <div class="col-md-3">
+                <strong>Positions:</strong> {{ drive.positions }}
+            </div>
+            <div class="col-md-3">
+                <strong>Deadline:</strong> {{ drive.application_deadline.strftime('%d-%m-%Y') if drive.application_deadline else '-' }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if applications %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Roll Number</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>CGPA</th>
+                <th>Applied Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td><strong>{{ app.student.roll_number }}</strong></td>
+                <td>{{ app.student.full_name }}</td>
+                <td>{{ app.student.email }}</td>
+                <td>{{ app.student.cgpa if app.student.cgpa else '-' }}</td>
+                <td>{{ app.application_date.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    {% if app.status == 'Applied' %}
+                        <span class="badge bg-info">Applied</span>
+                    {% elif app.status == 'Shortlisted' %}
+                        <span class="badge bg-warning text-dark">Shortlisted</span>
+                    {% elif app.status == 'Selected' %}
+                        <span class="badge bg-success">Selected</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        {% if app.student.resume_path %}
+                            <a href="/company/download-resume/{{ app.student.id }}" class="btn btn-sm btn-info" title="Download Resume">📄</a>
+                        {% endif %}
+                        
+                        <form method="POST" action="/company/update-application/{{ app.id }}/Shortlisted" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-warning" title="Shortlist">👍</button>
+                        </form>
+                        
+                        <form method="POST" action="/company/update-application/{{ app.id }}/Selected" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success" title="Select">✓</button>
+                        </form>
+                        
+                        <form method="POST" action="/company/update-application/{{ app.id }}/Rejected" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Reject">✕</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No applications yet for this placement drive.
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="/company/drives" class="btn btn-outline-secondary">Back to Drives</a>
+</div>
+{% endblock %}
