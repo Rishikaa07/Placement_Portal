@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Student Dashboard</h1>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5>Roll Number</h5>
+            <div style="font-size: 1.5rem; margin-top: 10px;">{{ student.roll_number }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h5>CGPA</h5>
+            <div class="display-4">{{ student.cgpa if student.cgpa else '-' }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h5>Available Drives</h5>
+            <div class="display-4">{{ approved_drives }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <h5>My Applications</h5>
+            <div class="display-4">{{ my_applications|length }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li><strong>Name:</strong> {{ student.full_name }}</li>
+                    <li><strong>Email:</strong> {{ student.email }}</li>
+                    <li><strong>Phone:</strong> {{ student.phone if student.phone else '-' }}</li>
+                    <li><strong>Branch:</strong> {{ student.branch if student.branch else '-' }}</li>
+                    <li><strong>Semester:</strong> {{ student.semester if student.semester else '-' }}</li>
+                    <li><strong>Resume:</strong>
+                        {% if student.resume_path %}
+                        ✓ Uploaded
+                        {% else %}
+                        ✕ Not Uploaded
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="/student/available-drives" class="btn btn-primary w-100 mb-2">
+                    🔍 Browse Placement Drives
+                </a>
+                <a href="/student/my-applications" class="btn btn-outline-primary w-100 mb-2">
+                    📋 My Applications
+                </a>
+                <a href="/student/edit-profile" class="btn btn-outline-primary w-100">
+                    ✏️ Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">My Applications Status</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="studentStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">Applied Drives CTC Comparison</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="studentCTCChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if my_applications %}
+<h4 class="mt-4 mb-3" style="color: var(--primary-color); font-weight: 600;">Recent Applications</h4>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Applied Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in my_applications|list|reverse %}
+            {% if loop.index <= 5 %} <tr>
+                <td><strong>{{ app.placement_drive.job_title }}</strong></td>
+                <td>{{ app.placement_drive.company.company_name }}</td>
+                <td>{{ app.application_date.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    {% if app.status == 'Applied' %}
+                    <span class="badge bg-info">Applied</span>
+                    {% elif app.status == 'Shortlisted' %}
+                    <span class="badge bg-warning text-dark">Shortlisted</span>
+                    {% elif app.status == 'Selected' %}
+                    <span class="badge bg-success">Selected</span>
+                    {% else %}
+                    <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/student/my-applications" class="btn btn-sm btn-outline-primary">View Details</a>
+                </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Application Status Chart
+        const statusCtx = document.getElementById('studentStatusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: {{ student_app_status_labels | tojson | safe }},
+        datasets: [{
+            data: {{ student_app_status_data | tojson | safe }},
+        backgroundColor: [
+            '#0d6efd', // Applied
+            '#ffc107', // Shortlisted
+            '#198754', // Selected
+            '#dc3545'  // Rejected
+        ]
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+        });
+
+    // Applied Drives CTC Chart
+    const ctcCtx = document.getElementById('studentCTCChart').getContext('2d');
+    new Chart(ctcCtx, {
+        type: 'line',
+        data: {
+            labels: {{ ctc_labels | tojson | safe }},
+        datasets: [{
+            label: 'CTC Offered (LPA)',
+            data: {{ ctc_data | tojson | safe }},
+        borderColor: 'rgba(25, 135, 84, 1)',
+        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+        fill: true,
+        tension: 0.1
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+        });
+    });
+</script>
+{% endblock %}

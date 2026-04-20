@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">My Applications</h1>
+
+{% if applications %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Applied Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td><strong>{{ app.placement_drive.job_title }}</strong></td>
+                <td>{{ app.placement_drive.company.company_name }}</td>
+                <td>{{ app.application_date.strftime('%d-%m-%Y %H:%M') }}</td>
+                <td>
+                    {% if app.status == 'Applied' %}
+                        <span class="badge bg-info">Applied</span>
+                    {% elif app.status == 'Shortlisted' %}
+                        <span class="badge bg-warning text-dark">Shortlisted</span>
+                    {% elif app.status == 'Selected' %}
+                        <span class="badge bg-success">Selected 🎉</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    You haven't applied to any placement drives yet. 
+    <a href="/student/available-drives">Start applying now</a>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="/student/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+    <a href="/student/available-drives" class="btn btn-primary">Browse More Drives</a>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Placement Drives - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Available Placement Drives</h1>
+
+{% if drives %}
+<div class="row">
+    {% for drive in drives %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header" style="background-color: var(--secondary-color);">
+                <h5 class="m-0" style="color: white;">{{ drive.job_title }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Company:</strong> {{ drive.company.company_name }}</p>
+                <p><strong>CTC:</strong> {{ drive.ctc if drive.ctc else '-' }} LPA</p>
+                <p><strong>Positions:</strong> {{ drive.positions }}</p>
+                <p><strong>Deadline:</strong> {{ drive.application_deadline.strftime('%d-%m-%Y %H:%M') }}</p>
+                
+                <div style="background-color: #f8f9fa; padding: 12px; border-radius: 6px; margin: 15px 0; max-height: 100px; overflow-y: auto; font-size: 0.9rem;">
+                    <strong>Description:</strong>
+                    <p style="margin: 8px 0 0 0;">{{ drive.job_description[:150] }}...</p>
+                </div>
+            </div>
+            <div class="card-footer" style="background-color: #f8f9fa;">
+                {% if drive.id in applied_drive_ids %}
+                    <button class="btn btn-secondary w-100" disabled>
+                        ✓ Already Applied
+                    </button>
+                {% else %}
+                    <form method="POST" action="/student/apply-drive/{{ drive.id }}" style="margin: 0;">
+                        <button type="submit" class="btn btn-primary w-100">
+                            Apply Now
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No placement drives available at the moment. Please check back later.
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="/student/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
