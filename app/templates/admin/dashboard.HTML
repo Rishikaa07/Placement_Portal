@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Admin Dashboard</h1>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h5>Total Students</h5>
+            <div class="display-4">{{ total_students }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h5>Total Companies</h5>
+            <div class="display-4">{{ total_companies }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h5>Total Placement Drives</h5>
+            <div class="display-4">{{ total_drives }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <h5>Total Applications</h5>
+            <div class="display-4">{{ total_applications }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Pending Company Approvals</h5>
+            </div>
+            <div class="card-body">
+                <div style="text-align: center; padding: 30px;">
+                    <div style="font-size: 3rem; font-weight: bold; color: var(--warning-color);">{{ pending_companies
+                        }}</div>
+                    <p style="margin-top: 10px; color: #666;">Companies waiting for approval</p>
+                    <a href="/admin/companies?status=Pending" class="btn btn-sm btn-warning">
+                        Review Companies
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Pending Drive Approvals</h5>
+            </div>
+            <div class="card-body">
+                <div style="text-align: center; padding: 30px;">
+                    <div style="font-size: 3rem; font-weight: bold; color: var(--warning-color);">{{ pending_drives }}
+                    </div>
+                    <p style="margin-top: 10px; color: #666;">Placement drives waiting for approval</p>
+                    <a href="/admin/placement-drives?status=Pending" class="btn btn-sm btn-warning">
+                        Review Drives
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">Application Status Distribution</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="adminStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="m-0">Students by Branch</h5>
+            </div>
+            <div class="card-body" style="position: relative; height: 300px; width: 100%;">
+                <canvas id="adminBranchChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="m-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="/admin/companies" class="btn btn-outline-primary w-100">
+                            👥 Manage Companies
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/admin/students" class="btn btn-outline-primary w-100">
+                            👨‍🎓 Manage Students
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/admin/placement-drives" class="btn btn-outline-primary w-100">
+                            📋 Manage Drives
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="/" class="btn btn-outline-secondary w-100">
+                            🏠 Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Application Status Chart
+        const statusCtx = document.getElementById('adminStatusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ app_status_labels | tojson }},
+        datasets: [{
+            data: {{ app_status_data | tojson }},
+        backgroundColor: [
+            '#0d6efd', // Applied (Primary Blue)
+            '#ffc107', // Shortlisted (Warning Yellow)
+            '#198754', // Selected (Success Green)
+            '#dc3545'  // Rejected (Danger Red)
+        ]
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+        });
+
+    // Students by Branch Chart
+    const branchCtx = document.getElementById('adminBranchChart').getContext('2d');
+    new Chart(branchCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ branch_labels | tojson }},
+        datasets: [{
+            label: 'Number of Students',
+            data: {{ branch_data | tojson }},
+        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+        borderColor: 'rgba(13, 110, 253, 1)',
+        borderWidth: 1
+                }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+            }
+        }
+    }
+        });
+    });
+</script>
+{% endblock %}
