@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Companies - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Manage Companies</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/admin/companies" class="row">
+            <div class="col-md-4 mb-2">
+                <input type="text" name="search" class="form-control" placeholder="Search by name or email..."
+                    value="{{ search }}">
+            </div>
+            <div class="col-md-4 mb-2">
+                <select class="form-select" name="status">
+                    <option value="">All Status</option>
+                    <option value="Pending" {% if status=='Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Approved" {% if status=='Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if status=='Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if companies %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Company Name</th>
+                <th>HR Contact</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Blacklisted</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for company in companies %}
+            <tr>
+                <td><strong>{{ company.company_name }}</strong></td>
+                <td>{{ company.hr_name }}</td>
+                <td>{{ company.email }}</td>
+                <td>{{ company.hr_contact }}</td>
+                <td>
+                    {% if company.approval_status == 'Pending' %}
+                    <span class="badge badge-pending">Pending</span>
+                    {% elif company.approval_status == 'Approved' %}
+                    <span class="badge badge-approved">Approved</span>
+                    {% else %}
+                    <span class="badge badge-rejected">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if company.is_blacklisted %}
+                    <span class="badge bg-danger">Yes</span>
+                    {% else %}
+                    <span class="badge bg-success">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        {% if company.approval_status == 'Pending' %}
+                        <form method="POST" action="/admin/approve-company/{{ company.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success" title="Approve">✓</button>
+                        </form>
+                        <form method="POST" action="/admin/reject-company/{{ company.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Reject">✕</button>
+                        </form>
+                        {% endif %}
+
+                        {% if company.is_blacklisted %}
+                        <form method="POST" action="/admin/unblacklist-company/{{ company.id }}"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-warning" title="Unblacklist">🔓</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="/admin/blacklist-company/{{ company.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Blacklist">🔒</button>
+                        </form>
+                        {% endif %}
+
+                        <a href="/admin/edit-company/{{ company.id }}" class="btn btn-sm btn-outline-info"
+                            title="Edit">✏️</a>
+
+                        <form method="POST" action="/admin/delete-company/{{ company.id }}" style="display:inline;"
+                            onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn btn-sm btn-outline-dark" title="Delete">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No companies found.
+</div>
+{% endif %}
+{% endblock %}

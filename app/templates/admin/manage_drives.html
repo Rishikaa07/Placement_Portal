@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Placement Drives - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Manage Placement Drives</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/admin/placement-drives" class="row">
+            <div class="col-md-4 mb-2">
+                <select class="form-select" name="status">
+                    <option value="">All Status</option>
+                    <option value="Pending" {% if status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Approved" {% if status == 'Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if drives %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>CTC</th>
+                <th>Positions</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for drive in drives %}
+            <tr>
+                <td><strong>{{ drive.job_title }}</strong></td>
+                <td>{{ drive.company.company_name }}</td>
+                <td>{{ drive.ctc if drive.ctc else '-' }}</td>
+                <td>{{ drive.positions }}</td>
+                <td>{{ drive.application_deadline.strftime('%d-%m-%Y') if drive.application_deadline else '-' }}</td>
+                <td>
+                    {% if drive.approval_status == 'Pending' %}
+                        <span class="badge badge-pending">Pending</span>
+                    {% elif drive.approval_status == 'Approved' %}
+                        <span class="badge badge-approved">Approved</span>
+                    {% else %}
+                        <span class="badge badge-rejected">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        {% if drive.approval_status == 'Pending' %}
+                            <form method="POST" action="/admin/approve-drive/{{ drive.id }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success" title="Approve">✓</button>
+                            </form>
+                            <form method="POST" action="/admin/reject-drive/{{ drive.id }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Reject">✕</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No placement drives found.
+</div>
+{% endif %}
+{% endblock %}

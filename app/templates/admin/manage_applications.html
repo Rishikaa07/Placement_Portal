@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Applications - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">All Student Applications</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/admin/applications" class="row">
+            <div class="col-md-4 mb-2">
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by student, drive or company..." value="{{ search }}">
+            </div>
+            <div class="col-md-4 mb-2">
+                <select class="form-select" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="Applied" {% if status=='Applied' %}selected{% endif %}>Applied</option>
+                    <option value="Shortlisted" {% if status=='Shortlisted' %}selected{% endif %}>Shortlisted</option>
+                    <option value="Selected" {% if status=='Selected' %}selected{% endif %}>Selected</option>
+                    <option value="Rejected" {% if status=='Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if applications %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>App ID</th>
+                <th>Student Name</th>
+                <th>Roll Number</th>
+                <th>Drive Title</th>
+                <th>Company Name</th>
+                <th>App Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ app.id }}</td>
+                <td>{{ app.student.full_name }}</td>
+                <td>{{ app.student.roll_number }}</td>
+                <td>{{ app.placement_drive.job_title }}</td>
+                <td>{{ app.placement_drive.company.company_name }}</td>
+                <td>{{ app.application_date.strftime('%d-%m-%Y') }}</td>
+                <td>
+                    {% if app.status == 'Applied' %}
+                    <span class="badge bg-secondary">Applied</span>
+                    {% elif app.status == 'Shortlisted' %}
+                    <span class="badge bg-primary">Shortlisted</span>
+                    {% elif app.status == 'Selected' %}
+                    <span class="badge bg-success">Selected</span>
+                    {% elif app.status == 'Rejected' %}
+                    <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                    <span class="badge bg-info">{{ app.status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No applications found matching your criteria.
+</div>
+{% endif %}
+{% endblock %}

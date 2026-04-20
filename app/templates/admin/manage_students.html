@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students - Placement Portal{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Manage Students</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="/admin/students" class="row">
+            <div class="col-md-6 mb-2">
+                <input type="text" name="search" class="form-control"
+                    placeholder="Search by name, roll number, or email..." value="{{ search }}">
+            </div>
+            <div class="col-md-6 mb-2">
+                <button type="submit" class="btn btn-primary w-100">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if students %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Roll Number</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>CGPA</th>
+                <th>Branch</th>
+                <th>Blacklisted</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td><strong>{{ student.roll_number }}</strong></td>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.phone if student.phone else '-' }}</td>
+                <td>{{ student.cgpa if student.cgpa else '-' }}</td>
+                <td>{{ student.branch if student.branch else '-' }}</td>
+                <td>
+                    {% if student.is_blacklisted %}
+                    <span class="badge bg-danger">Yes</span>
+                    {% else %}
+                    <span class="badge bg-success">No</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        {% if student.is_blacklisted %}
+                        <form method="POST" action="/admin/unblacklist-student/{{ student.id }}"
+                            style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-warning" title="Unblacklist">🔓</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="/admin/blacklist-student/{{ student.id }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Blacklist">🔒</button>
+                        </form>
+                        {% endif %}
+
+                        <a href="/admin/edit-student/{{ student.id }}" class="btn btn-sm btn-outline-info"
+                            title="Edit">✏️</a>
+
+                        <form method="POST" action="/admin/delete-student/{{ student.id }}" style="display:inline;"
+                            onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn btn-sm btn-outline-dark" title="Delete">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    No students found.
+</div>
+{% endif %}
+{% endblock %}
