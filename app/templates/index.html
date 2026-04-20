@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Placement Portal{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mt-5">
+    <div class="col-md-6">
+        <h1 style="color: var(--primary-color); font-weight: 700; font-size: 3rem;">
+            Welcome to Placement Portal
+        </h1>
+        <p style="font-size: 1.1rem; color: #666; line-height: 1.8;">
+            A comprehensive platform for managing campus recruitment activities. 
+            Connect students with companies, manage placement drives, and streamline the entire recruitment process.
+        </p>
+        <div class="mt-4">
+            <h5 style="color: var(--primary-color); font-weight: 600;">Quick Links:</h5>
+            <div style="margin-top: 15px;">
+                <a href="/auth/login" class="btn btn-primary me-3 mb-2">
+                    <strong>Login</strong>
+                </a>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        Register
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/auth/register-student">As Student</a></li>
+                        <li><a class="dropdown-item" href="/auth/register-company">As Company</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 12px; color: white;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">📊</div>
+            <h3>Manage Placements Efficiently</h3>
+            <p style="margin-top: 15px;">A unified platform for students, companies, and administrators.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 3rem; margin-bottom: 15px;">👨‍🎓</div>
+                <h5 class="card-title">For Students</h5>
+                <p class="card-text">
+                    Register, apply for placement drives, track applications, and manage your profile.
+                </p>
+                <a href="/auth/register-student" class="btn btn-sm btn-primary">Join as Student</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 3rem; margin-bottom: 15px;">🏢</div>
+                <h5 class="card-title">For Companies</h5>
+                <p class="card-text">
+                    Register, create placement drives, view applications, and manage recruitment process.
+                </p>
+                <a href="/auth/register-company" class="btn btn-sm btn-primary">Join as Company</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div style="font-size: 3rem; margin-bottom: 15px;">⚙️</div>
+                <h5 class="card-title">For Admin</h5>
+                <p class="card-text">
+                    Manage companies, students, and placement drives. Approve and monitor all activities.
+                </p>
+                <a href="/auth/login" class="btn btn-sm btn-primary">Admin Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div style="background-color: white; padding: 40px; border-radius: 12px; text-align: center;">
+            <h3 style="color: var(--primary-color); font-weight: 700; margin-bottom: 25px;">Key Features</h3>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">📝 Easy Registration</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Simple and secure registration for students and companies.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">🔒 Secure Login</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Password-protected accounts with role-based access control.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">📊 Dashboard</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Real-time tracking of drives and applications.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">✅ Approvals</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Admin approval workflow for companies and drives.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">📄 Resume Upload</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Students can upload and manage resumes.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">📋 Applications</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Track application status and history.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">🎯 Shortlisting</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Companies can shortlist and select candidates.</p>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <h6 style="color: var(--secondary-color); font-weight: 600;">🚫 Blacklist</h6>
+                    <p style="font-size: 0.9rem; color: #666;">Admin can blacklist problematic accounts.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
